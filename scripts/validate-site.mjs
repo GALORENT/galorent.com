@@ -169,6 +169,18 @@ export async function validateSite(root, options = {}) {
     }
   }
 
+  const scenesHtml = pages.get("/spd/scenes/") ?? "";
+  for (const scene of SCENE_ASSETS) {
+    const imagePath = `/assets/images/scenes/${scene}`;
+    const count = scenesHtml.split(imagePath).length - 1;
+    if (count !== 1) errors.push(`/spd/scenes/: expected ${imagePath} exactly once; found ${count}`);
+  }
+  const directionLabels = scenesHtml.match(/(?:Concept|Development) direction/gi) ?? [];
+  if (directionLabels.length < 11) errors.push(`/spd/scenes/: every artwork card requires a Concept or Development Direction label`);
+  if (/scene-concept\s+(?:minimal|phosphor|reactor|apex|mainframe|foundry)/i.test(scenesHtml)) errors.push(`/spd/scenes/: obsolete synthetic Scene classes remain`);
+  const css = await readFile(path.join(root, "assets", "site.css"), "utf8");
+  if (/\.scene-concept\.(?:minimal|phosphor|reactor|apex|mainframe)::before/i.test(css)) errors.push(`assets/site.css: obsolete synthetic Scene backgrounds remain`);
+
   return { ok: errors.length === 0, errors, warnings, counts: { routes: pages.size, metadata: titles.size, links: linkCount, assets: assetCount, images: imageCount } };
 }
 
