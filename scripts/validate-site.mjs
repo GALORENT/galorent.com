@@ -9,6 +9,11 @@ export const EXPECTED_ROUTES = [
   "/store/", "/support/", "/account/", "/company/", "/company/updates/"
 ];
 
+export const SCENE_ASSETS = [
+  "galorent-minimal.webp", "phosphor-performance.webp", "reactor.webp", "apex.webp", "mainframe.webp",
+  "foundry.webp", "datastream.webp", "orbital.webp", "lab-instrument.webp", "command.webp", "neural.webp"
+];
+
 export function routeToFile(route) {
   return route === "/" ? "index.html" : `${route.replace(/^\//, "")}index.html`;
 }
@@ -25,6 +30,35 @@ async function exists(file) {
   try { await access(file); return true; } catch { return false; }
 }
 
+export async function readImageDimensions(filename) {
+  const data = await readFile(filename);
+  if (data.length >= 24 && data.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) {
+    return { width: data.readUInt32BE(16), height: data.readUInt32BE(20) };
+  }
+  if (data.length >= 30 && data.toString("ascii", 0, 4) === "RIFF" && data.toString("ascii", 8, 12) === "WEBP") {
+    const type = data.toString("ascii", 12, 16);
+    if (type === "VP8X") return { width: 1 + data.readUIntLE(24, 3), height: 1 + data.readUIntLE(27, 3) };
+    if (type === "VP8 " && data.length >= 30) return { width: data.readUInt16LE(26) & 0x3fff, height: data.readUInt16LE(28) & 0x3fff };
+    if (type === "VP8L" && data.length >= 25 && data[20] === 0x2f) {
+      return { width: 1 + data[21] + ((data[22] & 0x3f) << 8), height: 1 + (data[22] >> 6) + (data[23] << 2) + ((data[24] & 0x0f) << 10) };
+    }
+  }
+  if (data.length >= 4 && data[0] === 0xff && data[1] === 0xd8) {
+    let offset = 2;
+    while (offset + 9 < data.length) {
+      if (data[offset] !== 0xff) { offset += 1; continue; }
+      const marker = data[offset + 1];
+      const size = data.readUInt16BE(offset + 2);
+      if ([0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(marker)) {
+        return { width: data.readUInt16BE(offset + 7), height: data.readUInt16BE(offset + 5) };
+      }
+      if (size < 2) break;
+      offset += size + 2;
+    }
+  }
+  throw new Error(`unsupported or corrupt image: ${filename}`);
+}
+
 function localTarget(value) {
   if (!value || /^(?:[a-z]+:|\/\/|data:|mailto:|tel:)/i.test(value)) return null;
   return value.split(/[?#]/, 1)[0];
@@ -34,6 +68,20 @@ export async function validateSite(root, options = {}) {
   const expectedRoutes = options.expectedRoutes ?? EXPECTED_ROUTES;
   const errors = [];
   const warnings = [];
+  const provenanceFile = path.join(root, "assets", "images", "ASSET_PROVENANCE.md");
+  if (await exists(provenanceFile)) {
+    const provenance = await readFile(provenanceFile, "utf8");
+    for (const scene of SCENE_ASSETS) {
+      const count = provenance.split(`scenes/${scene}`).length - 1;
+      if (count !== 1) errors.push(`Scene provenance must name scenes/${scene} exactly once; found ${count}`);
+      const filename = path.join(root, "assets", "images", "scenes", scene);
+      if (!(await exists(filename))) { errors.push(`missing Scene asset ${scene}`); continue; }
+      try {
+        const dimensions = await readImageDimensions(filename);
+        if (!(dimensions.width > 0) || !(dimensions.height > 0)) errors.push(`Scene asset ${scene} has invalid dimensions`);
+      } catch (error) { errors.push(error.message); }
+    }
+  }
   const sitemap = await readFile(path.join(root, "sitemap.xml"), "utf8");
   const sitemapRoutes = values(sitemap, /<loc>https:\/\/galorent\.com([^<]*)<\/loc>/gi).map((route) => route || "/");
   if (JSON.stringify(sitemapRoutes) !== JSON.stringify(expectedRoutes)) {

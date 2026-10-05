@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { validateSite } from "./validate-site.mjs";
+import { readImageDimensions, validateSite } from "./validate-site.mjs";
 import { resolveRequestPath } from "./serve-site.mjs";
 
 test("validator reports a broken internal fragment", async () => {
@@ -29,4 +29,11 @@ test("request resolver maps routes and rejects traversal", () => {
   assert.equal(resolveRequestPath("/assets/site.css"), "assets/site.css");
   assert.equal(resolveRequestPath("/../secret.txt"), null);
   assert.equal(resolveRequestPath("/%2e%2e/secret.txt"), null);
+});
+
+test("image dimension reader rejects corrupt image assets", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "galorent-image-"));
+  const filename = path.join(root, "broken.webp");
+  await writeFile(filename, "not an image");
+  await assert.rejects(readImageDimensions(filename), /unsupported or corrupt image/);
 });
