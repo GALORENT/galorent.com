@@ -1,0 +1,120 @@
+import { access, readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const EXPECTED_ROUTES = [
+  "/", "/spd/", "/spd/how-it-works/", "/spd/scenes/",
+  "/spd/compatibility/", "/spd/editions/", "/spd/free/", "/spd/pro/",
+  "/spd/service/", "/spd/corporate/", "/spd/laboratory/", "/hardware/",
+  "/store/", "/support/", "/account/", "/company/", "/company/updates/"
+];
+
+export function routeToFile(route) {
+  return route === "/" ? "index.html" : `${route.replace(/^\//, "")}index.html`;
+}
+
+function values(html, pattern) {
+  return [...html.matchAll(pattern)].map((match) => match[1]);
+}
+
+function stripMarkup(value) {
+  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+async function exists(file) {
+  try { await access(file); return true; } catch { return false; }
+}
+
+function localTarget(value) {
+  if (!value || /^(?:[a-z]+:|\/\/|data:|mailto:|tel:)/i.test(value)) return null;
+  return value.split(/[?#]/, 1)[0];
+}
+
+export async function validateSite(root, options = {}) {
+  const expectedRoutes = options.expectedRoutes ?? EXPECTED_ROUTES;
+  const errors = [];
+  const warnings = [];
+  const sitemap = await readFile(path.join(root, "sitemap.xml"), "utf8");
+  const sitemapRoutes = values(sitemap, /<loc>https:\/\/galorent\.com([^<]*)<\/loc>/gi).map((route) => route || "/");
+  if (JSON.stringify(sitemapRoutes) !== JSON.stringify(expectedRoutes)) {
+    errors.push(`sitemap routes differ: expected ${expectedRoutes.join(", ")}; received ${sitemapRoutes.join(", ")}`);
+  }
+
+  for (const required of ["CNAME", ".nojekyll", "robots.txt", "sitemap.xml"]) {
+    if (!(await exists(path.join(root, required)))) errors.push(`missing deployment file ${required}`);
+  }
+  if ((await readFile(path.join(root, "CNAME"), "utf8")).trim() !== "galorent.com") {
+    errors.push("CNAME must equal galorent.com");
+  }
+
+  const pages = new Map();
+  for (const route of expectedRoutes) {
+    const filename = path.join(root, routeToFile(route));
+    if (!(await exists(filename))) { errors.push(`${route}: missing ${routeToFile(route)}`); continue; }
+    pages.set(route, await readFile(filename, "utf8"));
+  }
+
+  const titles = new Map();
+  const descriptions = new Map();
+  let linkCount = 0;
+  let assetCount = 0;
+  for (const [route, html] of pages) {
+    const title = stripMarkup(values(html, /<title[^>]*>([\s\S]*?)<\/title>/gi)[0] ?? "");
+    const description = (html.match(/<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1]
+      ?? html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*name=["']description["'][^>]*>/i)?.[1] ?? "").trim();
+    const canonical = html.match(/<link\s+[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["'][^>]*>/i)?.[1]
+      ?? html.match(/<link\s+[^>]*href=["']([^"']+)["'][^>]*rel=["']canonical["'][^>]*>/i)?.[1];
+    if (!title) errors.push(`${route}: missing non-empty title`);
+    if (!description) errors.push(`${route}: missing non-empty description`);
+    if (title && titles.has(title)) errors.push(`${route}: duplicate title also used by ${titles.get(title)}`); else if (title) titles.set(title, route);
+    if (description && descriptions.has(description)) errors.push(`${route}: duplicate description also used by ${descriptions.get(description)}`); else if (description) descriptions.set(description, route);
+    if (canonical !== `https://galorent.com${route}`) errors.push(`${route}: canonical must be https://galorent.com${route}`);
+    const headings = values(html, /<h1\b[^>]*>([\s\S]*?)<\/h1>/gi);
+    if (headings.length !== 1) errors.push(`${route}: expected one h1, found ${headings.length}`);
+    const ids = values(html, /\sid=["']([^"']+)["']/gi);
+    const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+    if (duplicateIds.length) errors.push(`${route}: duplicate ids ${duplicateIds.join(", ")}`);
+
+    for (const href of values(html, /\shref=["']([^"']+)["']/gi)) {
+      linkCount += 1;
+      if (href.startsWith("#")) {
+        const id = decodeURIComponent(href.slice(1));
+        if (id && !ids.includes(id)) errors.push(`${route}: missing fragment #${id}`);
+        continue;
+      }
+      if (!href.startsWith("/")) continue;
+      const parsed = new URL(href, "https://galorent.com");
+      const targetRoute = parsed.pathname.endsWith("/") ? parsed.pathname : null;
+      if (targetRoute && !expectedRoutes.includes(targetRoute)) errors.push(`${route}: missing internal route ${targetRoute}`);
+      if (parsed.hash && targetRoute && pages.has(targetRoute)) {
+        const targetIds = values(pages.get(targetRoute), /\sid=["']([^"']+)["']/gi);
+        const id = decodeURIComponent(parsed.hash.slice(1));
+        if (id && !targetIds.includes(id)) errors.push(`${route}: missing fragment ${parsed.hash} in ${targetRoute}`);
+      }
+    }
+
+    for (const ref of [...values(html, /\ssrc=["']([^"']+)["']/gi), ...values(html, /<link\s+[^>]*href=["']([^"']+)["'][^>]*>/gi)]) {
+      const target = localTarget(ref);
+      if (!target) continue;
+      assetCount += 1;
+      const relative = target.startsWith("/") ? target.slice(1) : path.posix.normalize(path.posix.join(route, target)).replace(/^\//, "");
+      if (!(await exists(path.join(root, relative)))) errors.push(`${route}: missing local asset ${ref}`);
+    }
+  }
+
+  return { ok: errors.length === 0, errors, warnings, counts: { routes: pages.size, metadata: titles.size, links: linkCount, assets: assetCount } };
+}
+
+async function main() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const result = await validateSite(root);
+  if (!result.ok) {
+    console.error(`FAIL — ${result.errors.length} site validation error(s)`);
+    for (const error of result.errors) console.error(`- ${error}`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`PASS — ${result.counts.routes} routes, ${result.counts.metadata} metadata sets, ${result.counts.links} links, ${result.counts.assets} local asset references`);
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

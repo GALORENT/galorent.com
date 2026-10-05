@@ -15,3 +15,14 @@ Static GALORENT Development Preview served through GitHub Pages.
 Custom domain: `galorent.com`
 
 GitHub Pages source: `main` → repository root.
+
+## Local preview
+
+Node.js is the only requirement. No package installation is needed.
+
+```powershell
+node scripts/validate-site.mjs
+node scripts/serve-site.mjs --port 4173
+```
+
+Open `http://127.0.0.1:4173/` and stop the preview with `Ctrl+C`.
