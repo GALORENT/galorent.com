@@ -58,6 +58,7 @@ export async function validateSite(root, options = {}) {
   const descriptions = new Map();
   let linkCount = 0;
   let assetCount = 0;
+  let imageCount = 0;
   for (const [route, html] of pages) {
     const title = stripMarkup(values(html, /<title[^>]*>([\s\S]*?)<\/title>/gi)[0] ?? "");
     const description = (html.match(/<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1]
@@ -74,6 +75,17 @@ export async function validateSite(root, options = {}) {
     const ids = values(html, /\sid=["']([^"']+)["']/gi);
     const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
     if (duplicateIds.length) errors.push(`${route}: duplicate ids ${duplicateIds.join(", ")}`);
+
+    for (const tag of html.match(/<img\b[^>]*>/gi) ?? []) {
+      imageCount += 1;
+      const src = tag.match(/\ssrc=["']([^"']+)["']/i)?.[1] ?? "";
+      const alt = tag.match(/\salt=["']([^"']*)["']/i)?.[1]?.trim() ?? "";
+      const width = Number(tag.match(/\swidth=["']([0-9]+)["']/i)?.[1]);
+      const height = Number(tag.match(/\sheight=["']([0-9]+)["']/i)?.[1]);
+      if (src.startsWith("data:image")) errors.push(`${route}: embedded data:image source is not permitted`);
+      if (!alt) errors.push(`${route}: image requires non-empty alt text`);
+      if (!(width > 0) || !(height > 0)) errors.push(`${route}: image requires positive width and height`);
+    }
 
     for (const href of values(html, /\shref=["']([^"']+)["']/gi)) {
       linkCount += 1;
@@ -102,7 +114,7 @@ export async function validateSite(root, options = {}) {
     }
   }
 
-  return { ok: errors.length === 0, errors, warnings, counts: { routes: pages.size, metadata: titles.size, links: linkCount, assets: assetCount } };
+  return { ok: errors.length === 0, errors, warnings, counts: { routes: pages.size, metadata: titles.size, links: linkCount, assets: assetCount, images: imageCount } };
 }
 
 async function main() {
