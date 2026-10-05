@@ -41,3 +41,86 @@
 .support-route-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.support-route-grid a{text-decoration:none;padding:1.2rem;border:1px solid #303a44;border-radius:.75rem;background:#0e1217}.support-route-grid a:hover{border-color:#ffb000}.account-state{display:grid;grid-template-columns:.9fr 1.1fr;gap:1rem}.account-state>div{padding:1.4rem;border:1px solid #303a44;border-radius:.8rem;background:#0d1116}
 @media(max-width:1100px){.subpage-inner{grid-template-columns:1fr;min-height:auto}.section-head{grid-template-columns:1fr}.edition-detail-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.portfolio-grid,.state-columns{grid-template-columns:1fr 1fr}.scene-concept-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hardware-showcase,.identity-panel{justify-self:center}}
 @media(max-width:760px){.edition-detail-grid,.portfolio-grid,.state-columns,.compat-grid,.store-doctrine,.scene-concept-grid,.support-route-grid,.account-state{grid-template-columns:1fr}.subpage-inner{padding-top:3rem}.architecture-step{grid-template-columns:38px 1fr}.architecture-step em{grid-column:2}.scene-concept{min-height:205px}}
+
+/* WEB-002 PRODUCTION FINISH
+   A restrained optical layer over the established Technical Grid system. */
+:root{
+  --bg:#050709;
+  --panel:#0c1014;
+  --panel2:#11171d;
+  --line:#29333d;
+  --line-strong:#465462;
+  --text:#f5f6f7;
+  --muted:#9aa5af;
+  --accent:#f2aa22;
+  --accent2:#76501b;
+  --cyan:#22c7f2;
+  --success:#7ed29a;
+  --max:1280px;
+  --radius:.8rem;
+  --shadow:0 30px 90px rgba(0,0,0,.34);
+}
+html{background:#050709;scroll-padding-top:100px}
+body{
+  min-width:320px;
+  background:
+    radial-gradient(circle at 78% -10%,rgba(242,170,34,.055),transparent 34rem),
+    linear-gradient(180deg,#050709 0%,#080a0d 56%,#050709 100%);
+  font-feature-settings:"kern" 1,"liga" 1;
+  text-rendering:optimizeLegibility;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.18;
+  background-image:radial-gradient(circle at center,rgba(255,255,255,.08) 0 1px,transparent 1px);
+  background-size:18px 18px;
+}
+.wrap,.bar,.foot{width:min(calc(100% - clamp(2rem,6vw,5.5rem)),var(--max))}
+.notice{background:linear-gradient(90deg,rgba(242,170,34,.025),rgba(242,170,34,.09),rgba(242,170,34,.025));border-color:rgba(242,170,34,.22)}
+.header{box-shadow:0 12px 34px rgba(0,0,0,.18)}
+.bar{min-height:76px}
+.brand{display:inline-flex;align-items:center;gap:.58rem;white-space:nowrap;letter-spacing:.19em;font-size:.88rem}
+.brand-icon{width:26px;height:26px;border-radius:.18rem;object-fit:cover;box-shadow:0 0 24px rgba(242,170,34,.12)}
+.foot .brand-icon{width:30px;height:30px}
+nav a{position:relative;padding:.72rem .78rem;border-radius:.35rem;font-size:.82rem;letter-spacing:.025em}
+nav a[aria-current=page]::after{content:"";position:absolute;left:.78rem;right:.78rem;bottom:.28rem;height:1px;background:var(--accent);box-shadow:0 0 10px rgba(242,170,34,.45)}
+.navbtn{min-width:70px;min-height:44px;font-weight:700;letter-spacing:.05em}
+.eyebrow{display:inline-flex;align-items:center;gap:.6rem;margin-bottom:1.15rem;color:#efb557;letter-spacing:.2em}
+.eyebrow::before{content:"";width:1.7rem;height:1px;background:currentColor;opacity:.72}
+h1{font-weight:760;text-wrap:balance}
+h2{font-weight:720;text-wrap:balance}
+.lede{line-height:1.55}
+.btn{position:relative;overflow:hidden;border-color:#3e4a55;border-radius:.4rem;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.btn:hover,.btn:focus-visible{transform:translateY(-2px)}
+.btn.primary{background:linear-gradient(135deg,#ffc14a,#e59612);box-shadow:0 12px 35px rgba(226,147,18,.18)}
+.card,.evidence-card,.spd-evidence-card,.portfolio-card,.compat-card,.scene-concept,.edition-detail,.account-state>div,.support-route-grid a{box-shadow:0 18px 55px rgba(0,0,0,.14);transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+.card:hover,.evidence-card:hover,.portfolio-card:hover,.compat-card:hover,.support-route-grid a:hover{border-color:#455360;box-shadow:0 25px 70px rgba(0,0,0,.24)}
+.badge{background:rgba(255,255,255,.018)}
+.evidence-media,.spd-screen{display:grid;place-items:center}
+.evidence-media img,.spd-screen img{width:100%;max-width:720px;height:auto;aspect-ratio:auto;object-fit:contain}
+.identity-panel{overflow:hidden;border-color:#37434e;background:linear-gradient(145deg,rgba(15,20,25,.98),rgba(5,7,9,.98));box-shadow:var(--shadow)}
+.identity-panel img{max-height:520px}
+.section,.evidence-section,.spd-architecture,.spd-evidence,.spd-deeper,.spd-workspace,.spd-editions,.spd-hardware-bridge{position:relative}
+.section::before,.evidence-section::before{content:"";position:absolute;left:50%;top:0;width:min(86%,760px);height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(242,170,34,.22),transparent)}
+.scene-art{display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:cover}
+.edition-mark{display:block;width:min(100%,440px);max-height:360px;margin-inline:auto;object-fit:contain}
+.edition-mark.compact{max-height:180px}
+.status-kicker{display:inline-flex;align-items:center;gap:.45rem;color:var(--success);font-size:.65rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
+.status-kicker::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:currentColor;box-shadow:0 0 14px currentColor}
+@media(max-width:760px){
+  .wrap,.bar,.foot{width:min(calc(100% - 1.35rem),var(--max))}
+  .bar{min-height:64px}
+  nav{border-top:1px solid rgba(78,90,102,.45)}
+  nav ul{gap:.15rem;padding:.55rem 0 .75rem}
+  nav a{min-height:44px;display:flex;align-items:center}
+  nav a[aria-current=page]::after{left:.78rem;right:auto;width:1.8rem}
+  .notice{padding-inline:.7rem}
+  .actions{display:grid;grid-template-columns:1fr}
+  .btn{width:100%}
+  .hero-brand-mark{margin-inline:auto}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

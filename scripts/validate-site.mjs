@@ -123,6 +123,13 @@ export async function validateSite(root, options = {}) {
     const ids = values(html, /\sid=["']([^"']+)["']/gi);
     const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
     if (duplicateIds.length) errors.push(`${route}: duplicate ids ${duplicateIds.join(", ")}`);
+    if (!/<a\b[^>]*class=["'][^"']*\bskip\b[^"']*["'][^>]*href=["']#main["']/i.test(html)) errors.push(`${route}: missing #main skip link`);
+    if ((html.match(/<nav\b[^>]*aria-label=["']Primary["'][^>]*>/gi) ?? []).length !== 1) errors.push(`${route}: expected one primary navigation landmark`);
+    if ((html.match(/<footer\b/gi) ?? []).length !== 1) errors.push(`${route}: expected one footer`);
+    if ((html.match(/aria-current=["']page["']/gi) ?? []).length > 1) errors.push(`${route}: multiple aria-current page links`);
+    if ((html.match(/<link\b[^>]*href=["']\/assets\/site\.css["']/gi) ?? []).length !== 1) errors.push(`${route}: expected shared stylesheet reference`);
+    if ((html.match(/<script\b[^>]*src=["']\/assets\/site\.js["'][^>]*><\/script>/gi) ?? []).length !== 1) errors.push(`${route}: expected shared script reference`);
+    if (/<style\b|<script\b(?![^>]*\bsrc=)/i.test(html)) errors.push(`${route}: inline style/script block is not permitted`);
 
     for (const tag of html.match(/<img\b[^>]*>/gi) ?? []) {
       imageCount += 1;
