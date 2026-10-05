@@ -181,6 +181,23 @@ export async function validateSite(root, options = {}) {
   const css = await readFile(path.join(root, "assets", "site.css"), "utf8");
   if (/\.scene-concept\.(?:minimal|phosphor|reactor|apex|mainframe)::before/i.test(css)) errors.push(`assets/site.css: obsolete synthetic Scene backgrounds remain`);
 
+  const identityByRoute = new Map([
+    ["/spd/free/", "/assets/images/spd/spd-mark-free-pro.png"],
+    ["/spd/pro/", "/assets/images/spd/spd-mark-free-pro.png"],
+    ["/spd/service/", "/assets/images/spd/spd-mark-service.png"],
+    ["/spd/corporate/", "/assets/images/spd/spd-mark-corporate.png"],
+    ["/spd/laboratory/", "/assets/images/spd/spd-mark-laboratory.png"]
+  ]);
+  for (const [route, asset] of identityByRoute) {
+    if (!(pages.get(route) ?? "").includes(asset)) errors.push(`${route}: missing approved edition identity ${asset}`);
+  }
+  const spdHtml = pages.get("/spd/") ?? "";
+  if (!spdHtml.includes("/assets/images/spd/spd-instrument-aperture-free-pro.png")) errors.push(`/spd/: missing approved Instrument Aperture lockup`);
+  const editionsHtml = pages.get("/spd/editions/") ?? "";
+  if (!editionsHtml.includes("/assets/images/spd/spd-edition-family.png")) errors.push(`/spd/editions/: missing approved edition-family identity`);
+  for (const route of ["/spd/free/", "/spd/pro/"]) if (!editionsHtml.includes(`href="${route}"`)) errors.push(`/spd/editions/: missing separate ${route} link`);
+  for (const [route, html] of pages) if (/Consumer\s+edition/i.test(stripMarkup(html))) errors.push(`${route}: obsolete Consumer edition terminology`);
+
   return { ok: errors.length === 0, errors, warnings, counts: { routes: pages.size, metadata: titles.size, links: linkCount, assets: assetCount, images: imageCount } };
 }
 
