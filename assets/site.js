@@ -1,0 +1,1 @@
+(()=>{const b=document.querySelector('[data-navbtn]'),n=document.querySelector('[data-nav]');if(b&&n)b.addEventListener('click',()=>{const o=n.classList.toggle('open');b.setAttribute('aria-expanded',String(o))});document.querySelectorAll('[data-year]').forEach(x=>x.textContent=String(new Date().getFullYear()))})();
