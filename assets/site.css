@@ -130,3 +130,5 @@ h2{font-weight:720;text-wrap:balance}
   .hero-brand-mark{margin-inline:auto}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.hero-brand-mark,.hardware-hero img{height:auto}
+img[src*="/assets/images/product/"]{width:min(100%,720px);height:auto;margin-inline:auto}

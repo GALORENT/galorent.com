@@ -6,10 +6,10 @@ This register records the source and transformation of every production visual i
 
 | Output | Source | Source size | Operation | Output size | Status / use |
 |---|---|---:|---|---:|---|
-| `brand/galorent-master-dark.webp` | `GALORENT-SPD-Consumer-Brand-Package-v1.0-FINAL/01_Master_Emblem/galorent-g-master-dark-4096.png` | 4096×4096 | Proportional downscale; high-quality WebP | 1400×1400 | Approved Identity; master-brand presentation |
-| `brand/galorent-g-icon-32.png` | same master | 4096×4096 | Proportional downscale; PNG | 32×32 | Approved Identity; favicon-sized use |
-| `brand/galorent-g-icon-180.png` | same master | 4096×4096 | Proportional downscale; PNG | 180×180 | Approved Identity; touch icon |
-| `brand/galorent-social-preview.jpg` | same master | 4096×4096 | Proportional downscale centered on unchanged near-black field | 1200×630 | Approved Identity; social metadata |
+| `brand/galorent-master-dark.webp` | `GALORENT-SPD-Consumer-Brand-Package-v1.0-FINAL/01_Master_Emblem/galorent-g-master-dark-4096.png` | 4096×4096 | Optical crop `(278,712)–(3818,3383)` around the unchanged emblem; proportional downscale; high-quality WebP | 1400×1056 | Approved Identity; master-brand presentation |
+| `brand/galorent-g-icon-32.png` | same cropped master | 3540×2671 crop | Centered without distortion on a 3540×3540 near-black field; downscale; PNG | 32×32 | Approved Identity; favicon-sized use |
+| `brand/galorent-g-icon-180.png` | same cropped master | 3540×2671 crop | Centered without distortion on a 3540×3540 near-black field; downscale; PNG | 180×180 | Approved Identity; touch icon |
+| `brand/galorent-social-preview.jpg` | same cropped master | 3540×2671 crop | Proportional downscale centered on unchanged near-black field | 1200×630 | Approved Identity; social metadata |
 | `spd/spd-instrument-aperture-free-pro.png` | `Images/spd-logo-free-pro.png` | 2172×724 | Proportional downscale; PNG | 1600×533 | Approved Identity; SPD Free + Pro lockup |
 | `spd/spd-edition-family.png` | `Images/ChatGPT Image Sep 30, 2026, 09_48_41 PM.png` | 2172×724 | Proportional downscale; PNG | 1600×533 | Approved Identity; full edition family |
 | `spd/spd-mark-free-pro.png` | `Images/ChatGPT Image Sep 30, 2026, 09_48_24 PM.png` | 1254×1254 | Proportional downscale; PNG | 960×960 | Approved Identity; amber Instrument Aperture |

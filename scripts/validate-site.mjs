@@ -118,8 +118,22 @@ export async function validateSite(root, options = {}) {
     if (title && titles.has(title)) errors.push(`${route}: duplicate title also used by ${titles.get(title)}`); else if (title) titles.set(title, route);
     if (description && descriptions.has(description)) errors.push(`${route}: duplicate description also used by ${descriptions.get(description)}`); else if (description) descriptions.set(description, route);
     if (canonical !== `https://galorent.com${route}`) errors.push(`${route}: canonical must be https://galorent.com${route}`);
+    const ogTitle = html.match(/<meta\s+[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1];
+    const ogDescription = html.match(/<meta\s+[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1];
+    const ogUrl = html.match(/<meta\s+[^>]*property=["']og:url["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1];
+    const ogImage = html.match(/<meta\s+[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["'][^>]*>/i)?.[1];
+    if (ogTitle !== title) errors.push(`${route}: og:title must match the document title`);
+    if (ogDescription !== description) errors.push(`${route}: og:description must match the document description`);
+    if (ogUrl !== canonical) errors.push(`${route}: og:url must match the canonical URL`);
+    if (ogImage !== "https://galorent.com/assets/images/brand/galorent-social-preview.jpg") errors.push(`${route}: missing approved og:image`);
+    if (!/<link\s+[^>]*rel=["']icon["'][^>]*href=["']\/assets\/images\/brand\/galorent-g-icon-32\.png["']/i.test(html)) errors.push(`${route}: missing approved favicon`);
+    if (!/<link\s+[^>]*rel=["']apple-touch-icon["'][^>]*href=["']\/assets\/images\/brand\/galorent-g-icon-180\.png["']/i.test(html)) errors.push(`${route}: missing approved apple-touch icon`);
     const headings = values(html, /<h1\b[^>]*>([\s\S]*?)<\/h1>/gi);
     if (headings.length !== 1) errors.push(`${route}: expected one h1, found ${headings.length}`);
+    const firstMainSection = html.match(/<main\b[\s\S]*?<section\b[\s\S]*?<\/section>/i)?.[0] ?? "";
+    if (/<img\b[^>]*\sloading=["']lazy["'][^>]*>/i.test(firstMainSection)) {
+      errors.push(`${route}: first main section images must load eagerly`);
+    }
     const ids = values(html, /\sid=["']([^"']+)["']/gi);
     const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
     if (duplicateIds.length) errors.push(`${route}: duplicate ids ${duplicateIds.join(", ")}`);
@@ -140,6 +154,7 @@ export async function validateSite(root, options = {}) {
       if (src.startsWith("data:image")) errors.push(`${route}: embedded data:image source is not permitted`);
       if (!alt) errors.push(`${route}: image requires non-empty alt text`);
       if (!(width > 0) || !(height > 0)) errors.push(`${route}: image requires positive width and height`);
+      if (!/\sloading=["'](?:lazy|eager)["']/i.test(tag)) errors.push(`${route}: image requires explicit loading behavior`);
     }
 
     for (const href of values(html, /\shref=["']([^"']+)["']/gi)) {
@@ -179,6 +194,9 @@ export async function validateSite(root, options = {}) {
   if (directionLabels.length < 11) errors.push(`/spd/scenes/: every artwork card requires a Concept or Development Direction label`);
   if (/scene-concept\s+(?:minimal|phosphor|reactor|apex|mainframe|foundry)/i.test(scenesHtml)) errors.push(`/spd/scenes/: obsolete synthetic Scene classes remain`);
   const css = await readFile(path.join(root, "assets", "site.css"), "utf8");
+  if (!/img\[src\*=["']\/assets\/images\/product\/["']\][^{]*\{[^}]*width:min\(100%,720px\)/i.test(css.replace(/\s+/g, ""))) {
+    errors.push("assets/site.css: real product screenshots require a 720px no-upscale guard");
+  }
   if (/\.scene-concept\.(?:minimal|phosphor|reactor|apex|mainframe)::before/i.test(css)) errors.push(`assets/site.css: obsolete synthetic Scene backgrounds remain`);
 
   const identityByRoute = new Map([

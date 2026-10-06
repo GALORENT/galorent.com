@@ -37,3 +37,19 @@ test("image dimension reader rejects corrupt image assets", async () => {
   await writeFile(filename, "not an image");
   await assert.rejects(readImageDimensions(filename), /unsupported or corrupt image/);
 });
+
+test("validator rejects lazy-loaded imagery in the first main section", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "galorent-hero-image-"));
+  await mkdir(path.join(root, "assets"));
+  await writeFile(path.join(root, "CNAME"), "galorent.com\n");
+  await writeFile(path.join(root, ".nojekyll"), "");
+  await writeFile(path.join(root, "robots.txt"), "User-agent: *\nAllow: /\n");
+  await writeFile(path.join(root, "assets", "site.css"), "body{}\n");
+  await writeFile(path.join(root, "assets", "site.js"), "\n");
+  await writeFile(path.join(root, "sitemap.xml"), "<loc>https://galorent.com/</loc>");
+  await writeFile(path.join(root, "index.html"), `<!doctype html><html><head><title>Home</title><meta name="description" content="A description"><link rel="canonical" href="https://galorent.com/"><link rel="stylesheet" href="/assets/site.css"></head><body><main id="main"><section><h1>Home</h1><img src="/missing.webp" alt="Hero" width="100" height="100" loading="lazy"></section></main><script src="/assets/site.js"></script></body></html>`);
+
+  const result = await validateSite(root, { expectedRoutes: ["/"] });
+
+  assert.match(result.errors.join("\n"), /first main section images must load eagerly/);
+});
