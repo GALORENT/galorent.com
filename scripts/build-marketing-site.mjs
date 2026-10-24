@@ -7,7 +7,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const image = (src, alt, width, height, loading = "lazy", className = "") =>
   `<img${className ? ` class="${className}"` : ""} src="${src}" alt="${alt}" width="${width}" height="${height}" loading="${loading}" decoding="async">`;
 
-const brandIcon = () => image("/assets/images/brand/galorent-g-icon-32.png", "GALORENT G emblem", 32, 32, "eager", "brand-icon");\nconst brandWordmark = () => image("/assets/images/brand/galorent-wordmark.png", "GALORENT wordmark", 556, 45, "eager", "brand-wordmark");
+const brandIcon = () => image("/assets/images/brand/galorent-g-icon-32.png", "GALORENT G emblem", 32, 32, "eager", "brand-icon");\nconst brandWordmark = () => image("/assets/images/brand/galorent-wordmark.webp", "GALORENT wordmark", 800, 147, "eager", "brand-wordmark");
 
 const navFor = (active) => [
   ["SPD", "/spd/"], ["Hardware", "/hardware/"], ["Scenes", "/spd/scenes/"],
