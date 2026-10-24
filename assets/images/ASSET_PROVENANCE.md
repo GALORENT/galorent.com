@@ -17,7 +17,7 @@ This register records the source and transformation of every production visual i
 | `spd/spd-mark-corporate.png` | approved edition-family source | 2172×724 | Crop `(1161,100)–(1579,455)`; PNG | 418×355 | Approved Identity; green Instrument Aperture |
 | `spd/spd-mark-laboratory.png` | approved edition-family source | 2172×724 | Crop `(1704,100)–(2122,455)`; PNG | 418×355 | Approved Identity; violet Instrument Aperture |
 
-The SPD mark remains a product identifier. The GALORENT G remains the application, taskbar, and system-tray master icon.
+The approved Instrument Aperture is the SPD product, application and taskbar identity. The GALORENT G identifies the parent company and corporate website. The tester page uses the same approved corporate header, footer and browser icons as the rest of the site.
 
 ## Product and hardware evidence
 

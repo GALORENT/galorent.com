@@ -6,7 +6,7 @@ export const EXPECTED_ROUTES = [
   "/", "/spd/", "/spd/how-it-works/", "/spd/scenes/",
   "/spd/compatibility/", "/spd/editions/", "/spd/free/", "/spd/pro/",
   "/spd/service/", "/spd/corporate/", "/spd/laboratory/", "/hardware/",
-  "/store/", "/support/", "/account/", "/company/", "/company/updates/"
+  "/store/", "/support/", "/account/", "/company/", "/company/updates/", "/spd/testers/"
 ];
 
 export const SCENE_ASSETS = [
@@ -125,7 +125,10 @@ export async function validateSite(root, options = {}) {
     if (ogTitle !== title) errors.push(`${route}: og:title must match the document title`);
     if (ogDescription !== description) errors.push(`${route}: og:description must match the document description`);
     if (ogUrl !== canonical) errors.push(`${route}: og:url must match the canonical URL`);
-    if (ogImage !== "https://galorent.com/assets/images/brand/galorent-social-preview.jpg") errors.push(`${route}: missing approved og:image`);
+    const approvedOgImage = route === "/spd/testers/"
+      ? "https://galorent.com/assets/images/approved-20261008/lockup.png"
+      : "https://galorent.com/assets/images/brand/galorent-social-preview.jpg";
+    if (ogImage !== approvedOgImage) errors.push(`${route}: missing approved og:image`);
     if (!/<link\s+[^>]*rel=["']icon["'][^>]*href=["']\/assets\/images\/brand\/galorent-g-icon-32\.png["']/i.test(html)) errors.push(`${route}: missing approved favicon`);
     if (!/<link\s+[^>]*rel=["']apple-touch-icon["'][^>]*href=["']\/assets\/images\/brand\/galorent-g-icon-180\.png["']/i.test(html)) errors.push(`${route}: missing approved apple-touch icon`);
     const headings = values(html, /<h1\b[^>]*>([\s\S]*?)<\/h1>/gi);
