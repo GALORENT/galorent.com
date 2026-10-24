@@ -126,7 +126,7 @@ export async function validateSite(root, options = {}) {
     if (ogDescription !== description) errors.push(`${route}: og:description must match the document description`);
     if (ogUrl !== canonical) errors.push(`${route}: og:url must match the canonical URL`);
     const approvedOgImage = route === "/spd/testers/"
-      ? "https://galorent.com/assets/images/approved-20261008/lockup.png"
+      ? "https://galorent.com/assets/images/spd/spd-instrument-aperture-free-pro.png"
       : "https://galorent.com/assets/images/brand/galorent-social-preview.jpg";
     if (ogImage !== approvedOgImage) errors.push(`${route}: missing approved og:image`);
     if (!/<link\s+[^>]*rel=["']icon["'][^>]*href=["']\/assets\/images\/brand\/galorent-g-icon-32\.png["']/i.test(html)) errors.push(`${route}: missing approved favicon`);

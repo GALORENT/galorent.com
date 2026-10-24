@@ -50,3 +50,5 @@ All Scene derivatives are artwork-only crops from the supplied concept sheets. T
 | `scenes/neural.webp` | same | `(735,723)–(1434,1010)` | 699×287 | Development Direction |
 
 WEB-002 visually checked all eleven outputs against their labeled source panels. Crops retain the artwork frame, exclude the source captions and neighboring panels, and contain no generated or repainted content.
+
+2026-10-24: The tester hero and social preview now reuse the approved SPD Free + Pro lockup listed above, replacing the visibly clipped legacy approved-20261008 lockup. No artwork was modified.
