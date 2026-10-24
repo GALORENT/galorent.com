@@ -7,7 +7,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const image = (src, alt, width, height, loading = "lazy", className = "") =>
   `<img${className ? ` class="${className}"` : ""} src="${src}" alt="${alt}" width="${width}" height="${height}" loading="${loading}" decoding="async">`;
 
-const brandIcon = () => image("/assets/images/brand/galorent-g-icon-32.png", "GALORENT G emblem", 32, 32, "eager", "brand-icon");
+const brandIcon = () => image("/assets/images/brand/galorent-g-icon-32.png", "GALORENT G emblem", 32, 32, "eager", "brand-icon");\nconst brandWordmark = () => image("/assets/images/brand/galorent-wordmark.png", "GALORENT wordmark", 556, 45, "eager", "brand-wordmark");
 
 const navFor = (active) => [
   ["SPD", "/spd/"], ["Hardware", "/hardware/"], ["Scenes", "/spd/scenes/"],
@@ -42,13 +42,13 @@ function shell({ route, title, description, active = "", body, bodyClass = "" })
 <a class="skip" href="#main">Skip to content</a>
 <div class="notice">GALORENT · TUCSON, ARIZONA · PRODUCTS IN DEVELOPMENT</div>
 <header class="header"><div class="bar">
-  <a class="brand" href="/" aria-label="GALORENT home">${brandIcon()}<span>GALORENT</span><b>.</b></a>
+  <a class="brand" href="/" aria-label="GALORENT home">${brandIcon()}${brandWordmark()}</a>
   <button class="navbtn" data-navbtn aria-expanded="false" aria-controls="nav">Menu</button>
   <nav id="nav" data-nav aria-label="Primary"><ul>${navFor(active)}</ul></nav>
 </div></header>
 <main id="main">${body}</main>
 <footer><div class="foot">
-  <div><a class="brand" href="/">${brandIcon()}<span>GALORENT</span><b>.</b></a><p class="meta">Hardware insight, in plain sight.<br>Built in Tucson, Arizona.</p></div>
+  <div><a class="brand" href="/">${brandIcon()}${brandWordmark()}</a><p class="meta">Hardware insight, in plain sight.<br>Built in Tucson, Arizona.</p></div>
   <div class="footlinks"><a href="/spd/">SPD</a><a href="/spd/scenes/">Scenes</a><a href="/spd/editions/">Editions</a><a href="/hardware/">Hardware</a><a href="/company/">Company</a><a href="/company/#contact">Contact</a></div>
   <p class="legal">© <span data-year>2026</span> Galorent, Inc. Product names and marks are used to identify work in development.</p>
 </div></footer>
@@ -197,7 +197,7 @@ pages.set("/store/", shell({
 pages.set("/company/", shell({
   route: "/company/", active: "Company", title: "About GALORENT — Built in Tucson", description: "Galorent, Inc. is a Tucson technology company in development, building PC hardware-intelligence software and integrated display systems.",
   body: `
-<section class="company-hero"><div class="wrap company-hero-inner"><div><span class="kicker">TUCSON, ARIZONA</span><h1>Building a clearer relationship between people and their machines.</h1><p class="hero-lede">Galorent, Inc. is developing software and hardware for people who want to understand the systems they build, use, repair, and push further.</p></div>${image("/assets/images/brand/galorent-master-dark.webp", "GALORENT G emblem", 1400, 1056, "eager")}</div></section>
+<section class="company-hero"><div class="wrap company-hero-inner"><div><span class="kicker">TUCSON, ARIZONA</span><h1>Building a clearer relationship between people and their machines.</h1><p class="hero-lede">Galorent, Inc. is developing software and hardware for people who want to understand the systems they build, use, repair, and push further.</p></div>${image("/assets/images/brand/galorent-brand-full.webp", "GALORENT corporate logo", 1254, 1254, "eager")}</div></section>
 <section class="statement"><div class="wrap statement-inner"><span>OUR FOCUS</span><h2>Make complex hardware behavior useful without making it shallow.</h2><p>The goal is not another dashboard full of numbers. It is a platform that can grow from everyday PC understanding to professional service and engineering work without losing the evidence underneath.</p></div></section>
 <section class="plain-section"><div class="wrap company-focus"><article><span class="microtag">SOFTWARE</span><h2>GALORENT SPD</h2><p>Hardware intelligence for observation, history, controlled testing, diagnostics, performance, and visual Scenes.</p><a class="text-link" href="/spd/">Explore SPD →</a></article><article><span class="microtag">HARDWARE</span><h2>Display Systems</h2><p>Purpose-built physical surfaces for SPD Scenes and live machine intelligence.</p><a class="text-link" href="/hardware/">Explore Hardware →</a></article></div></section>
 <section class="contact-section" id="contact"><div class="wrap contact-inner"><div><span class="kicker">CONTACT</span><h2>Funding, manufacturing, testing, and strategic conversations are welcome.</h2><p>GALORENT is still in development. If this site was shared with you directly, continue through that conversation while the public contact channel is established.</p></div></div></section>`
